@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTR-WAF Risk Score Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for better aesthetics if needed */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #e2e8f0; /* Light gray track */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8; /* Medium gray thumb */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b; /* Darker gray thumb on hover */
+        }
+        .modal {
+            transition: opacity 0.25s ease;
+        }
+        .modal-content {
+            transition: transform 0.25s ease;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-100 to-sky-100 text-slate-700 min-h-screen flex flex-col items-center justify-center p-4 selection:bg-blue-500 selection:text-white">
+
+    <div class="bg-white shadow-xl rounded-xl p-6 md:p-10 w-full max-w-2xl border border-slate-200">
+        <header class="mb-8 text-center">
+            <h1 class="text-3xl md:text-4xl font-bold text-blue-700">TTR-WAF Risk Score Calculator</h1>
+            <p class="mt-3 text-sm text-slate-500">
+                <strong class="text-amber-500">Disclaimer:</strong> This is an educational tool based on the provided scoring logic.
+                The calculated score is illustrative and <strong class="text-red-500">NOT</strong> a medical diagnosis.
+                Always consult a healthcare professional for medical advice.
+            </p>
+        </header>
+
+        <!-- Input Form -->
+        <form id="ttrWafRsForm" class="space-y-6">
+            <!-- Row 1 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="diabetesMellitus" class="block text-sm font-medium text-blue-600 mb-1">Diabetes Mellitus</label>
+                    <select id="diabetesMellitus" name="diabetesMellitus"
+                            class="w-full bg-slate-50 border border-slate-300 text-slate-800 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                        <option value="present">Yes</option>
+                        <option value="absent">No (RS=1)</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="priorStroke" class="block text-sm font-medium text-blue-600 mb-1">Prior Ischemic Stroke</label>
+                    <select id="priorStroke" name="priorStroke"
+                            class="w-full bg-slate-50 border border-slate-300 text-slate-800 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                        <option value="yes">Yes</option>
+                        <option value="no">No (RS=1)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Row 2 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="antiThyroidDrugs" class="block text-sm font-medium text-blue-600 mb-1">Use of Anti-thyroid Drugs</label>
+                    <select id="antiThyroidDrugs" name="antiThyroidDrugs"
+                            class="w-full bg-slate-50 border border-slate-300 text-slate-800 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                        <option value="yes">Yes</option>
+                        <option value="no">No (RS=2)</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="daysToFirstInr" class="block text-sm font-medium text-blue-600 mb-1">Achieving First Therapeutic INR</label>
+                    <select id="daysToFirstInr" name="daysToFirstInr"
+                            class="w-full bg-slate-50 border border-slate-300 text-slate-800 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                        <option value="outside_range">&lt; 15 or &gt; 28 days</option>
+                        <option value="15-28_days">Within 15-28 days (RS=2)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Row 3 -->
+            <div>
+                <label for="warfarinDose" class="block text-sm font-medium text-blue-600 mb-1">Total Warfarin Dose for First Therapeutic INR</label>
+                <select id="warfarinDose" name="warfarinDose"
+                        class="w-full bg-slate-50 border border-slate-300 text-slate-800 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    <option value="20_or_more">≥ 20 mg/week</option>
+                    <option value="less_than_20">< 20 mg/week (RS=1)</option>
+                </select>
+            </div>
+
+            <!-- Calculate Button -->
+            <div class="pt-4">
+                <button type="submit"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-opacity-50">
+                    Calculate TTR-WAF Risk Score
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="resultsModal" class="fixed inset-0 bg-slate-600 bg-opacity-75 flex items-center justify-center p-4 modal opacity-0 pointer-events-none z-50">
+        <div class="modal-content bg-white p-6 md:p-8 rounded-xl shadow-xl w-full max-w-md border border-slate-200 transform scale-95">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-blue-700">TTR-WAF Risk Score Result</h2>
+                <button id="closeModal" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div id="resultsContent" class="text-slate-700 space-y-3">
+                <!-- Results will be injected here by JavaScript -->
+            </div>
+            <p class="mt-6 text-xs text-amber-600">
+                <strong>Important:</strong> This score is for educational purposes only. It is <strong class="text-red-600">NOT</strong> a substitute for professional medical advice. Always consult your doctor.
+            </p>
+        </div>
+    </div>
+
+    <footer class="text-center text-slate-500 text-xs mt-10 pb-4">
+        TTR-WAF Risk Score Calculator &copy; <span id="currentYear"></span>. For demonstration purposes only.
+    </footer>
+
+    <script>
+        // Set current year in footer
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        const ttrWafRsForm = document.getElementById('ttrWafRsForm');
+        const resultsModal = document.getElementById('resultsModal');
+        const resultsContent = document.getElementById('resultsContent');
+        const closeModalButton = document.getElementById('closeModal');
+
+        ttrWafRsForm.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent actual form submission
+
+            // --- Get Input Values ---
+            const diabetesMellitus = document.getElementById('diabetesMellitus').value;
+            const priorStroke = document.getElementById('priorStroke').value;
+            const antiThyroidDrugs = document.getElementById('antiThyroidDrugs').value;
+            const daysToFirstInr = document.getElementById('daysToFirstInr').value;
+            const warfarinDose = document.getElementById('warfarinDose').value;
+
+            // --- Risk Calculation Logic based on the provided rules ---
+            let points = 0;
+            const maxPossiblePoints = 1 + 1 + 2 + 2 + 1; // 7
+
+            // Absence of diabetes mellitus (RS = 1)
+            if (diabetesMellitus === 'absent') points += 1;
+
+            // No prior ischemic stroke (RS = 1)
+            if (priorStroke === 'no') points += 1;
+
+            // No use of anti-thyroid drugs (RS= 2)
+            if (antiThyroidDrugs === 'no') points += 2;
+
+            // Achieving first therapeutic INR within 15 to 28 days (RS = 2)
+            if (daysToFirstInr === '15-28_days') points += 2;
+
+            // Total warfarin dose < 20 mg/week for first therapeutic INR (RS= 1)
+            if (warfarinDose === 'less_than_20') points += 1;
+
+            // --- Determine TTR Likelihood based on points ---
+            let ttrLikelihood = "";
+            let categoryColor = "text-slate-700"; // Default color for interpretation text
+            let scoreColor = "text-blue-600"; // Default color for the score itself
+
+            if (points >= 5) { // New threshold: 5
+                ttrLikelihood = "Likely TTR ≥ 70%";
+                categoryColor = "text-green-600"; // Positive outcome color
+                scoreColor = "text-green-600";
+            } else {
+                ttrLikelihood = "Less likely TTR ≥ 70%";
+                categoryColor = "text-orange-600"; // Caution/less positive outcome color
+                scoreColor = "text-orange-600";
+            }
+
+
+            // --- Display Results ---
+            resultsContent.innerHTML = `
+                <p><strong class="text-blue-600">Total TTR-WAF Risk Score:</strong> <span class="text-2xl font-bold ${scoreColor}">${points} / ${maxPossiblePoints}</span></p>
+                <p class="mt-2"><strong class="text-blue-600">Interpretation:</strong> <span class="font-semibold ${categoryColor}">${ttrLikelihood}</span></p>
+                <p class="mt-4 text-sm text-slate-600">This score is calculated based on the factors you provided. A score of 5 or more suggests a higher likelihood of achieving a Time in Therapeutic Range (TTR) of 70% or more. A score less than 5 suggests a lower likelihood. Please consult a healthcare professional for full interpretation and medical advice.</p>
+            `;
+            showModal();
+        });
+
+        function showModal() {
+            resultsModal.classList.remove('opacity-0', 'pointer-events-none');
+            resultsModal.querySelector('.modal-content').classList.remove('scale-95');
+            resultsModal.querySelector('.modal-content').classList.add('scale-100');
+        }
+
+        function hideModal() {
+            resultsModal.classList.add('opacity-0');
+            resultsModal.querySelector('.modal-content').classList.remove('scale-100');
+            resultsModal.querySelector('.modal-content').classList.add('scale-95');
+            setTimeout(() => {
+                resultsModal.classList.add('pointer-events-none');
+            }, 250);
+        }
+
+        closeModalButton.addEventListener('click', hideModal);
+        resultsModal.addEventListener('click', function(event) {
+            if (event.target === resultsModal) {
+                hideModal();
+            }
+        });
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && !resultsModal.classList.contains('pointer-events-none')) {
+                hideModal();
+            }
+        });
+    </script>
+
+</body>
+</html>
