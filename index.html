@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRE-TTR Score Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .modal {
+            transition: opacity 0.25s ease;
+        }
+        .modal-content {
+            transition: transform 0.25s ease;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-100 to-sky-100 text-slate-700 min-h-screen flex flex-col items-center justify-center p-4 selection:bg-blue-500 selection:text-white">
+
+    <div class="bg-white shadow-xl rounded-xl w-full max-w-3xl border border-slate-200">
+        <!-- Header Section -->
+        <header class="p-6 md:p-8 text-center border-b border-slate-200">
+            <h1 class="text-3xl md:text-4xl font-bold text-blue-700">PRE-TTR Score Calculator</h1>
+            <p class="mt-2 text-base text-slate-600">
+                <strong class="text-blue-700">Pre</strong>diction of Early <strong class="text-blue-700">T</strong>ime in <strong class="text-blue-700">T</strong>herapeutic <strong class="text-blue-700">R</strong>ange
+            </p>
+            <p class="mt-4 text-sm text-slate-500">
+                <strong class="text-amber-500">Disclaimer:</strong> This is an educational tool. The score is illustrative and <strong class="text-red-500">NOT</strong> a medical diagnosis. Always consult a healthcare professional.
+            </p>
+        </header>
+
+        <!-- Main Content: Inputs and Results -->
+        <div class="p-6 md:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Side: Input Toggles -->
+            <div id="calculator-inputs" class="lg:col-span-2 space-y-5">
+                <!-- Diabetes Mellitus -->
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-600 font-medium">Diabetes Mellitus</span>
+                    <div class="flex rounded-lg border border-slate-300 overflow-hidden text-sm" data-variable="diabetesMellitus">
+                        <button class="toggle-btn px-4 py-2 bg-slate-200" data-value="present">Yes</button>
+                        <button class="toggle-btn px-4 py-2" data-value="absent">No (+1)</button>
+                    </div>
+                </div>
+
+                <!-- Prior ischemic stroke -->
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-600 font-medium">Prior ischemic stroke</span>
+                    <div class="flex rounded-lg border border-slate-300 overflow-hidden text-sm" data-variable="priorStroke">
+                        <button class="toggle-btn px-4 py-2 bg-slate-200" data-value="yes">Yes</button>
+                        <button class="toggle-btn px-4 py-2" data-value="no">No (+1)</button>
+                    </div>
+                </div>
+
+                <!-- Use of thyroid medication -->
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-600 font-medium">Use of thyroid medication</span>
+                    <div class="flex rounded-lg border border-slate-300 overflow-hidden text-sm" data-variable="thyroidMedication">
+                        <button class="toggle-btn px-4 py-2 bg-slate-200" data-value="yes">Yes</button>
+                        <button class="toggle-btn px-4 py-2" data-value="no">No (+2)</button>
+                    </div>
+                </div>
+                
+                <!-- Initial warfarin dose -->
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-slate-600 font-medium">Initial warfarin dose</span>
+                        <button id="doseInfoBtn" type="button" class="text-blue-500 hover:text-blue-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="flex rounded-lg border border-slate-300 overflow-hidden text-sm" data-variable="doseIntensity">
+                        <button class="toggle-btn px-4 py-2 bg-slate-200" data-value="low">Low dose</button>
+                        <button class="toggle-btn px-4 py-2" data-value="high">High dose (+1)</button>
+                    </div>
+                </div>
+
+                <!-- Total days to achieve first therapeutic INR -->
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center space-y-2 sm:space-y-0">
+                    <span class="text-slate-600 font-medium">Total days to achieve first therapeutic INR</span>
+                    <div class="flex rounded-lg border border-slate-300 overflow-hidden text-sm" data-variable="daysToFirstInr">
+                        <button class="toggle-btn px-3 py-2 bg-slate-200" data-value="less_than_15">≤ 14 days (+1)</button>
+                        <button class="toggle-btn px-3 py-2" data-value="15_to_28">15 to 28 days (+2)</button>
+                        <button class="toggle-btn px-3 py-2" data-value="more_than_28">> 28 days</button>
+                    </div>
+                </div>
+
+                <!-- Total dose of warfarin/week -->
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center space-y-2 sm:space-y-0">
+                    <span class="text-slate-600 font-medium">Total dose of warfarin/week to achieve first therapeutic INR</span>
+                    <div class="flex rounded-lg border border-slate-300 overflow-hidden text-sm" data-variable="warfarinDose">
+                        <button class="toggle-btn px-4 py-2 bg-slate-200" data-value="20_or_more">≥ 20 mg/wk</button>
+                        <button class="toggle-btn px-4 py-2" data-value="less_than_20">< 20 mg/wk (+1)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Results -->
+            <div class="lg:col-span-1 bg-slate-50 rounded-lg p-6 flex flex-col justify-center items-center text-center border">
+                <h3 class="font-semibold text-slate-500 uppercase tracking-wider text-sm">Total Score</h3>
+                <div id="totalScoreDisplay" class="text-7xl font-bold text-slate-400 my-3">0</div>
+                <div id="interpretationDisplay" class="font-semibold text-lg text-orange-600">Less likely TTR ≥ 70%</div>
+                <p class="text-xs text-slate-500 mt-4">A score ≥ 5 suggests a higher likelihood of achieving TTR ≥ 70% within 6 months.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dose Info Modal -->
+    <div id="doseInfoModal" class="fixed inset-0 bg-slate-600 bg-opacity-75 flex items-center justify-center p-4 modal opacity-0 pointer-events-none z-50">
+        <div class="modal-content bg-white p-6 md:p-8 rounded-xl shadow-xl w-full max-w-md border border-slate-200 transform scale-95">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-blue-700">Initial Warfarin Dose Definitions</h2>
+                <button id="closeDoseInfoModal" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="text-slate-600 space-y-3 text-sm">
+                <p><strong class="font-semibold text-slate-800">Low dose:</strong> &lt; 3mg/day or 5mg/3mg/3mg (3-day loading)</p>
+                <p><strong class="font-semibold text-slate-800">High dose:</strong> ≥ 3mg/day or 5mg/5mg/3mg (3-day loading)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Disclaimer Modal -->
+    <div id="disclaimerModal" class="fixed inset-0 bg-slate-600 bg-opacity-75 flex items-center justify-center p-4 modal opacity-0 pointer-events-none z-50">
+        <div class="modal-content bg-white p-6 md:p-8 rounded-xl shadow-xl w-full max-w-lg border border-slate-200 transform scale-95">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-blue-700">Disclaimer</h2>
+                <button id="closeDisclaimerModal" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="text-slate-600 text-sm max-h-80 overflow-y-auto pr-2">
+                <ul class="list-disc list-inside space-y-3">
+                    <li class="text-justify">This risk score calculator is intended for informational and educational purposes only. It is based on a predictive model that is currently in the refinement and validation phase. It should not replace clinical judgment or professional medical advice.</li>
+                    <li class="text-justify">Individual patient outcomes may vary, and results should be interpreted with care. Always consult a licensed healthcare provider before making any medical decisions.</li>
+                    <li class="text-justify">The developers and affiliated institutions assume no responsibility for decisions made using this tool.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+    <footer class="text-center text-slate-500 text-xs mt-6 pb-4">
+        <button id="disclaimerBtn" class="text-blue-600 hover:underline mb-2">View Disclaimer</button>
+        <br>
+        &copy; Sharifah Nadiah 2025. For demonstration purpose only.
+    </footer>
+
+    <script>
+        // --- State Management & Initial Setup ---
+        const selections = {
+            diabetesMellitus: 'present',
+            priorStroke: 'yes',
+            thyroidMedication: 'yes',
+            doseIntensity: 'low',
+            daysToFirstInr: 'less_than_15',
+            warfarinDose: '20_or_more'
+        };
+
+        const scoreMapping = {
+            diabetesMellitus: { absent: 1, present: 0 },
+            priorStroke: { no: 1, yes: 0 },
+            thyroidMedication: { no: 2, yes: 0 },
+            doseIntensity: { high: 1, low: 0 },
+            daysToFirstInr: { less_than_15: 1, '15_to_28': 2, more_than_28: 0 },
+            warfarinDose: { less_than_20: 1, '20_or_more': 0 }
+        };
+
+        const maxPossiblePoints = 8; // Manually calculated: 1+1+2+1+2+1 = 8
+
+        const totalScoreDisplay = document.getElementById('totalScoreDisplay');
+        const interpretationDisplay = document.getElementById('interpretationDisplay');
+        const inputGroups = document.querySelectorAll('#calculator-inputs [data-variable]');
+        
+        const disclaimerModal = document.getElementById('disclaimerModal');
+        const disclaimerBtn = document.getElementById('disclaimerBtn');
+        const closeDisclaimerModal = document.getElementById('closeDisclaimerModal');
+        
+        const doseInfoModal = document.getElementById('doseInfoModal');
+        const doseInfoBtn = document.getElementById('doseInfoBtn');
+        const closeDoseInfoModal = document.getElementById('closeDoseInfoModal');
+
+
+        // --- Core Functions ---
+        function calculateScore() {
+            let totalPoints = 0;
+            for (const variable in selections) {
+                const selectedValue = selections[variable];
+                totalPoints += scoreMapping[variable][selectedValue] || 0;
+            }
+            return totalPoints;
+        }
+
+        function updateUI() {
+            const score = calculateScore();
+            
+            // Update total score display
+            totalScoreDisplay.textContent = score;
+
+            // Update interpretation and colors
+            if (score >= 5) {
+                totalScoreDisplay.className = "text-7xl font-bold text-green-600 my-3";
+                interpretationDisplay.className = "font-semibold text-lg text-green-600";
+                interpretationDisplay.textContent = "Likely TTR ≥ 70%";
+            } else {
+                totalScoreDisplay.className = "text-7xl font-bold text-orange-600 my-3";
+                interpretationDisplay.className = "font-semibold text-lg text-orange-600";
+                interpretationDisplay.textContent = "Less likely TTR ≥ 70%";
+            }
+        }
+        
+        function handleButtonClick(event) {
+            const button = event.target;
+            const variable = button.parentElement.dataset.variable;
+            const value = button.dataset.value;
+
+            if (variable && value) {
+                // Update state
+                selections[variable] = value;
+
+                // Update styles for the clicked group
+                const buttonsInGroup = button.parentElement.querySelectorAll('.toggle-btn');
+                buttonsInGroup.forEach(btn => {
+                    btn.classList.remove('bg-teal-500', 'text-white');
+                    btn.classList.add('bg-slate-200', 'text-slate-800');
+                });
+                button.classList.add('bg-teal-500', 'text-white');
+                button.classList.remove('bg-slate-200', 'text-slate-800');
+
+                // Recalculate and update the entire UI
+                updateUI();
+            }
+        }
+
+        // --- Modal Control Functions ---
+        function showModal(modal) {
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.querySelector('.modal-content').classList.remove('scale-95');
+        }
+
+        function hideModal(modal) {
+            modal.classList.add('opacity-0');
+            modal.querySelector('.modal-content').classList.add('scale-95');
+             setTimeout(() => {
+                modal.classList.add('pointer-events-none');
+            }, 250);
+        }
+
+        // --- Initial Application Setup ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set up initial active buttons
+            inputGroups.forEach(group => {
+                const variable = group.dataset.variable;
+                const initialValue = selections[variable];
+                const buttons = group.querySelectorAll('.toggle-btn');
+                buttons.forEach(button => {
+                    button.classList.add('bg-slate-200', 'text-slate-800', 'transition-colors', 'duration-200');
+                    if (button.dataset.value === initialValue) {
+                        button.classList.add('bg-teal-500', 'text-white');
+                        button.classList.remove('bg-slate-200', 'text-slate-800');
+                    }
+                    button.addEventListener('click', handleButtonClick);
+                });
+            });
+
+            // Initial calculation
+            updateUI();
+        });
+        
+        // --- Event Listeners ---
+        disclaimerBtn.addEventListener('click', () => showModal(disclaimerModal));
+        closeDisclaimerModal.addEventListener('click', () => hideModal(disclaimerModal));
+        disclaimerModal.addEventListener('click', (event) => {
+            if (event.target === disclaimerModal) {
+                hideModal(disclaimerModal);
+            }
+        });
+
+        doseInfoBtn.addEventListener('click', () => showModal(doseInfoModal));
+        closeDoseInfoModal.addEventListener('click', () => hideModal(doseInfoModal));
+        doseInfoModal.addEventListener('click', (event) => {
+            if (event.target === doseInfoModal) {
+                hideModal(doseInfoModal);
+            }
+        });
+        
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                hideModal(disclaimerModal);
+                hideModal(doseInfoModal);
+            }
+        });
+
+    </script>
+</body>
+</html>
+
