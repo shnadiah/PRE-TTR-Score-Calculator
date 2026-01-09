@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>W-AF Risk Hub</title>
+    <title>W-AF Risk Score</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1d4ed8">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16,7 +16,6 @@
         .active-page { display: flex; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Segmented Toggle Styles matching original PRE-TTR */
         .toggle-btn { transition: all 0.2s ease; background-color: #e2e8f0; color: #1e293b; border: 1px solid transparent; white-space: nowrap; }
         .toggle-btn.active { background-color: #14b8a6; color: white; border-color: #14b8a6; }
         
@@ -29,7 +28,7 @@
     <!-- HOME MENU HUB -->
     <div id="main-menu" class="active-page flex-col w-full max-w-3xl bg-white shadow-xl rounded-xl border border-slate-200 overflow-hidden">
         <header class="p-8 text-center border-b border-slate-200 bg-white">
-            <h1 class="text-3xl md:text-4xl font-bold text-blue-700 uppercase tracking-tight">W-AF Risk Hub</h1>
+            <h1 class="text-3xl md:text-4xl font-bold text-blue-700 uppercase tracking-tight">W-AF Risk Score</h1>
             <p class="mt-2 text-base text-slate-600 font-medium italic uppercase">Clinical Decision Support Tools</p>
         </header>
         <div class="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -155,7 +154,7 @@
         <header class="p-6 md:p-8 text-center border-b border-slate-200 relative">
             <button onclick="showPage('main-menu')" class="absolute left-6 top-8 text-blue-600 hover:underline text-sm font-bold uppercase">&larr; Hub</button>
             <h1 class="text-3xl md:text-4xl font-bold text-orange-700 uppercase tracking-tight">FACT-RED</h1>
-            <p class="mt-1 text-base text-slate-600 font-bold italic">Bleeding risk score</p>
+            <p class="mt-1 text-base text-slate-600 uppercase font-bold italic">Bleeding risk score</p>
             <p class="mt-4 text-sm text-slate-500">
                 <strong class="text-amber-500">Disclaimer:</strong> This is an educational tool. The score is illustrative and <strong class="text-red-500">NOT</strong> a medical diagnosis. Always consult a healthcare professional.
             </p>
@@ -338,7 +337,7 @@
             setTimeout(() => m.classList.add('pointer-events-none'), 250);
         }
 
-        // STATE INITIALIZATION
+        // STATE
         const state = {
             prettr: { dm: 'present', stroke: 'yes', thyroid: 'yes', dose: 'low', days: '28', weekdose: '20' },
             w6: { eth: 'ind', alb: 'low', vhd: 'yes', dm: 'yes', hyp: 'yes', day1: 'late', val1: 'low' },
